@@ -18,3 +18,14 @@ now our REST call should have this header (taken from Postman, where you can use
     
     [{"key":"Authorization","value":"Basic dXNlcjpmMjljMDU2ZC0yNzNmLTRmNmUtOGE4Ny1iNGY3MDMyNTYwNGE=","type":"text"}]
 and it works!
+
+<h1>Http Basic Configured</h1>
+
+now that we added some configuration at `SecurityConfig`, we have
+
+| User/Password  | Role            |
+| -------------  |:---------------:|
+| user/pass      | STANDARD        |
+| admin/admin    | STANDARD, ADMIN |
+
+APIs with `/seriousInfo` requires user authentication with ADMIN role. To all other APIs, just authenticate with any user!
