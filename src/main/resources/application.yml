@@ -1,0 +1,16 @@
+server:
+  port: 8080
+logging:
+  level:
+    org.springframework.security: debug
+custom:
+  users:
+    - name: admin
+      pass: admin
+      services:
+        - SERVICE1
+        - SERVICE2
+    - name: user
+      pass: pass
+      services:
+        - SERVICE1

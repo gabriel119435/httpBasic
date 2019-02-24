@@ -29,3 +29,9 @@ now that we added some configuration at `SecurityConfig`, we have
 | admin/admin    | STANDARD, ADMIN |
 
 APIs with `/seriousInfo` requires user authentication with ADMIN role. To all other APIs, just authenticate with any user!
+
+<h1>Http Basic Configured with externalized authorities</h1>
+
+Using `@ConfigurationProperties` we managed to retrieve our authorities and now we can add services and its authorities with application.yml
+
+Besides that, now we can use `@PreAuthorize("hasAuthority('someService')")` directly into any controller's method, and leave `configure(HttpSecurity http)` method with less info
