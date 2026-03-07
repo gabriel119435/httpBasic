@@ -1,37 +1,19 @@
-<h1>Http Basic</h1>
-adding just this dependency:
+## httpBasic
+* demo of http basic authentication with spring security
+* users and their authorities are externalized in `application.yml`.
 
-    <dependency>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-security</artifactId>
-    <dependency>
-makes Spring print this line at console every startup:
+## users
+| username | password | authorities        |
+|----------|----------|--------------------|
+| admin    | admin    | SERVICE1, SERVICE2 |
+| user     | pass     | SERVICE1           |
 
-    Using generated security password: f29c056d-273f-4f6e-8a87-b4f70325604a
-now [we know](https://docs.spring.io/spring-boot/docs/1.4.0.RELEASE/reference/htmlsingle/#boot-features-security) our password and user. [Here](https://www.base64encode.org/) we can paste
+## endpoints
+| endpoint            | protection                                                           |
+|---------------------|----------------------------------------------------------------------|
+| `GET /random`       | any authenticated user                                               |
+| `GET /seriousInfo1` | SERVICE2 authority only — enforced in `SecurityConfig`               |
+| `GET /seriousInfo2` | SERVICE2 authority only — enforced on the method via `@PreAuthorize` |
 
-    user:f29c056d-273f-4f6e-8a87-b4f70325604a
-returning
-     
-    dXNlcjpmMjljMDU2ZC0yNzNmLTRmNmUtOGE4Ny1iNGY3MDMyNTYwNGE=
-now our REST call should have this header (taken from Postman, where you can use at `Authentication` tab, `Basic Auth` option, and you`ll get the same result):
-    
-    [{"key":"Authorization","value":"Basic dXNlcjpmMjljMDU2ZC0yNzNmLTRmNmUtOGE4Ny1iNGY3MDMyNTYwNGE=","type":"text"}]
-and it works!
-
-<h1>Http Basic Configured</h1>
-
-now that we added some configuration at `SecurityConfig`, we have
-
-| User/Password  | Role            |
-| -------------  |:---------------:|
-| user/pass      | STANDARD        |
-| admin/admin    | STANDARD, ADMIN |
-
-APIs with `/seriousInfo` requires user authentication with ADMIN role. To all other APIs, just authenticate with any user!
-
-<h1>Http Basic Configured with externalized authorities</h1>
-
-Using `@ConfigurationProperties` we managed to retrieve our authorities and now we can add services and its authorities with application.yml
-
-Besides that, now we can use `@PreAuthorize("hasAuthority('someService')")` directly into any controller's method, and leave `configure(HttpSecurity http)` method with less info
+## how to call
+set the `authorization` header to `Basic {base64(username:password)}`.

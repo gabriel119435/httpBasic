@@ -1,49 +1,56 @@
 package httpBasic.config;
 
+import httpBasic.config.dto.CustomConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 
-	static final String service2Auth = "SERVICE2";
+    static final String SERVICE_2 = "SERVICE2";
 
-	@Autowired
-	CustomConfig config;
-	
-	@Bean
-	@Override //used to avoid "Using generated security password: 5f2511ac-66c6-4538-a777-8fb6aa7a0b59" being printed
-	protected AuthenticationManager authenticationManager() throws Exception {
-		return super.authenticationManager();
-	}
-	
-	@Override
-	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> memoryAuth = auth.inMemoryAuthentication();
+    @Autowired
+    CustomConfig config;
 
-		for (User u : config.getUsers()) {
-			memoryAuth = memoryAuth.withUser(u.getName())
-					               .password("{noop}" + u.getPass())
-					               .authorities(u.getServices().toArray(new String[0]))
-					               .and();
-		}
-	}
+    @Bean
+    public InMemoryUserDetailsManager userDetailsManager() {
+        List<UserDetails> users = new ArrayList<>();
+        for (httpBasic.config.dto.User u : config.users()) {
+            users.add(User.withUsername(u.name())
+                    .password("{noop}" + u.pass())
+                    .authorities(u.services().toArray(new String[0]))
+                    .build());
+        }
+        return new InMemoryUserDetailsManager(users);
+    }
 
-	@Override
-	public void configure(HttpSecurity http) throws Exception {
-		http
-		.csrf().disable()                                            // disable csrf, allowing delete, post and other http verbs
-		.authorizeRequests()                                         
-	    	.antMatchers("/seriousInfo1").hasAuthority(service2Auth) // APIs with '/seriousInfo1' should only allow users with SERVICE2
-	        .anyRequest().authenticated()	                         // all APIs should at least have an user authenticated
-	    .and().httpBasic()
-	    .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); //real stateless!
-		}
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                // disable csrf, allowing delete, post and other http verbs
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        // apis with '/seriousInfo1' should only allow users with SERVICE2
+                        .requestMatchers("/seriousInfo1").hasAuthority(SERVICE_2)
+                        // all apis should at least have an user authenticated
+                        .anyRequest().authenticated()
+                )
+                .httpBasic(Customizer.withDefaults())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        return http.build();
+    }
 }

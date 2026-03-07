@@ -1,16 +1,15 @@
 package httpBasic;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
-@ComponentScan
-@EnableAutoConfiguration
-//allows @PreAuthorize("hasAuthority('someService')") to be used
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@SpringBootApplication
+@ConfigurationPropertiesScan
+@EnableMethodSecurity
 public class App {
-	public static void main(String[] args) {
-		SpringApplication.run(App.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(App.class, args);
+    }
 }
