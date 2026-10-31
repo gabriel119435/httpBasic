@@ -1,0 +1,8 @@
+{
+    "debugger_configurations": [
+        {"name": "httpBasic app", "type": "java", "request": "launch"},
+    ],
+    "folders": [
+        {"path": "."}
+    ]
+}
